@@ -4,7 +4,6 @@ var cors = require('cors')
 // const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-// const MongoClient = require("mongodb").MongoClient;
 
 const productRoutes = require("./api/routes/products");
 const accountRoutes = require("./api/routes/accounts");
