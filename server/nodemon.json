@@ -3,6 +3,7 @@
         "MONGO_ATLAS_PW": "CTdYB4jqX6uovW7O",
         "JWT_KEY": "secret",
         "ADMIN_ROLE":"bkcgee@gmail.com",
-        "BRIAN": "SECRET KEY"
+        "BRIAN": "SECRET KEY",
+        "MONGO_ATLAS_CONNECTION":"mongodb://brian123:brian123@cluster-free1-shard-00-00-7juzj.mongodb.net:27017,cluster-free1-shard-00-01-7juzj.mongodb.net:27017,cluster-free1-shard-00-02-7juzj.mongodb.net:27017/accounts?ssl=true&replicaSet=cluster-free1-shard-0&authSource=admin&retryWrites=true"
     }
 }
