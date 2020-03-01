@@ -14,7 +14,7 @@
       <!-- <p>Test input for datedue: <input type="text" class="w0" v-model="newAccount.datedue"></p> -->
       <table class="customers">
       <tr>
-            <th>Due</th>
+            <th class="w0">Due</th>
             <th>Date</th>
             <th>Bal</th>
             <th>New Bal</th>
@@ -40,7 +40,7 @@
         <td>{{a.minimum - a.interest | all | currency}}</td> 
         <td>{{a.payoff | all | currency}}</td> 
       </tr>
-        <tr>
+        <tr class="tr-edit">
               <td><input type="text" class="w0" v-model="newAccount.datedue"></td>
               <td><input type="text" class="w1" v-model="newAccount.statement_date"></td>
               <td><input type="text" class="w1" v-model="newAccount.previous_balance"></td>
@@ -128,9 +128,9 @@
           // var len = acct.length-1;
 
           var slist = JSON.stringify(acct);
-          console.log(`last acct=${JSON.stringify(acct, null, 3)}`)
+          // console.log(`last acct=${JSON.stringify(acct, null, 3)}`)
           this.newAccount = JSON.parse(slist);
-          console.log(`populateNewAcct:statement_date=${acct.statement_date}`)
+          // console.log(`populateNewAcct:statement_date=${acct.statement_date}`)
           var next = this.nextMonth(acct.statement_date)
           this.newAccount.previous_balance = this.newAccount.new_balance / 100;
           this.newAccount.new_balance = 0;
@@ -140,9 +140,9 @@
           this.newAccount.purchases = this.newAccount.purchases / 100;
           this.newAccount.statement_date = next.toISOString().split('T')[0];//`${next.getFullYear()}/${next.getMonth()+1}/${next.getDate()+1}`;
           // this.newAccount.statement_date = next.toLocaleString();
-          console.log(`new statement_date=${next.toLocaleString()}`)
-          console.log(`iso statement_date=${ next.toISOString().split('T')}`)
-          console.log(`this.newAccount.statement_date=${this.newAccount.statement_date}`)
+          // console.log(`new statement_date=${next.toLocaleString()}`)
+          // console.log(`iso statement_date=${ next.toISOString().split('T')}`)
+          // console.log(`this.newAccount.statement_date=${this.newAccount.statement_date}`)
          
         },
         nextMonth: function(d){
@@ -166,7 +166,7 @@
             a.interest = a.interest*100;
             a.purchases = a.purchases*100;
             a.payment = a.payment*100;
-              console.log(`adding ${JSON.stringify(this.newAccount, null, 3)}`);
+              // console.log(`adding ${JSON.stringify(this.newAccount, null, 3)}`);
               if (confirm(`Are you sure you want to save \n 
               prev = ${a.previous_balance} \n
               prev = ${a.new_balance} \n
@@ -174,6 +174,7 @@
                 // Save it!
               this.$store.dispatch("addAccount", this.newAccount);
               this.$store.dispatch("loadAccounts");
+              this.$router.push({path:`/account`})
             } else {
                 // Do nothing!
                 alert('canceling the update')
@@ -295,6 +296,7 @@
   }
   table{
     /* max-width: 70%; */
+    table-layout: fixed;
   }
   .controls{
     display: flex;
@@ -327,75 +329,78 @@
       display: table-cell;
     }
     .customers {
-    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-    border-collapse: collapse;
-    width: 100%;
-    font-size: 1.2em;
-    margin: 10px;
-    padding: 5px;
-}
+      font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 1.2em;
+      /* margin: 10px; */
+      /* padding: 5px; */
+    }
 
-.customers td, .customers th {
-    border: 1px solid #ddd;
-    padding: 2px;
-    color: black;
-    /* font-size: 1.4em; */
-}
+    .customers td, .customers th {
+        border: 1px solid #ddd;
+        padding: 2px;
+        color: black;
+        /* font-size: 1.4em; */
+    }
 
-.customers tr:nth-child(even){background-color: #f2f2f2;}
+    .customers tr:nth-child(even){background-color: #f2f2f2;}
 
-.customers tr:hover {background-color: #ddd;}
+    .customers tr:hover {background-color: #ddd;}
 
-.customers th {
-    /* padding-top: 12px; */
-    /* padding-bottom: 12px; */
-    text-align: center;
-    background-color: #4CAF50;
-    color: white;
-}
-.customers td input{
-  /* max-width: 5em; */
-  /* width: 100px; */
-  background: rgb(195, 201, 195);
-  padding: 5px;
-  /* font-size: 1.2rem; */
-}
-.account-edit{
-  margin-top: 20px;
-  padding: 10px;
-}
-.account-edit form{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 20px;
-  font-size: 1.4rem;
-}
-.account-edit label{
-  /* flex: 0 0 200px; */
-  margin: 10px;
-}
-.account-edit input{
-     font-size: 2rem;
-    width: 200px;
-}
-  .w0{
-    width: 50px;
-  }
-  .w1{
-    width: 100px;
-  }
-  .w2{
-    width: 200px;
-  }
-  .w3{
-    width: 300px;
-  }
-  .red{
-    background: rgb(230, 62, 62);
-    color: white;
-  }
+    .customers th {
+        /* padding-top: 12px; */
+        /* padding-bottom: 12px; */
+        text-align: center;
+        background-color: #4CAF50;
+        color: white;
+    }
+    .customers td input{
+      /* max-width: 5em; */
+      /* width: 100px; */
+      background: rgb(195, 201, 195);
+      padding: 5px;
+      /* font-size: 1.2rem; */
+    }
+    .account-edit{
+      margin-top: 20px;
+      padding: 10px;
+    }
+    .account-edit form{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 20px;
+      font-size: 1.4rem;
+    }
+    .account-edit label{
+      /* flex: 0 0 200px; */
+      margin: 10px;
+    }
+    .account-edit input{
+        font-size: 2rem;
+        width: 200px;
+    }
+      .w0{
+        width: 50px;
+      }
+      .w1{
+        width: 100px;
+      }
+      .w2{
+        width: 200px;
+      }
+      .w3{
+        width: 300px;
+      }
+      .red{
+        background: rgb(230, 62, 62);
+        color: white;
+      }
+    .tr-edit td{
+      font-size: 1.2em;
+    }
 /* .inline-label { 
     white-space: nowrap;
     max-width: 250px;

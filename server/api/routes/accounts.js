@@ -52,6 +52,8 @@ router.get("/", AccountsController.accounts_get_all);
 router.post("/", AccountsController.accounts_create_account);
 // router.post("/", checkAuth, upload.single('accountImage'), AccountsController.accounts_create_account);
 
+router.get("/accountck", AccountsController.accounts_check);
+
 router.get("/:accountId", AccountsController.accounts_get_account);
 
 router.patch("/:accountId", checkAuth, AccountsController.accounts_update_account);

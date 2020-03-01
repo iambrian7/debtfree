@@ -56,30 +56,35 @@ exports.user_login = (req, res, next) => {
       }
       bcrypt.compare(req.body.password, user[0].password, (err, result) => {
         if (err) {
+          console.log(`user.js: user_login: failed: ${JSON.stringify(err, null, 3)}`);
           return res.status(401).json({
             message: "Auth failed"
           });
         }
-        if (result) {
+   //     if (result) {
+          console.log(`user.js: user_login: ${JSON.stringify(result, null, 3)}`);
           const token = jwt.sign(
             {
               email: user[0].email,
               userId: user[0]._id
+              //TODO add owner to accounts.find({"owner: user[0].email"})
             },
             process.env.JWT_KEY,
             {
               expiresIn: "1h"
             }
-          );
-          return res.status(200).json({
-            message: "Auth successful",
-            token: token,
-            user: user[0].email
-          });
-        }
-        res.status(401).json({
-          message: "Auth failed"
-        });
+            );
+            console.log(`user.js: user_login:returnin Auth success ${JSON.stringify(result, null, 3)}`);
+            return res.status(200).json({
+              message: "Auth successful",
+              token: token,
+              user: user[0].email
+            });
+    //      }
+        //   console.log(`user.js: user_login:default Auth success `);
+        //   res.status(401).json({
+        //   message: "Auth failed"
+        // });
       });
     })
     .catch(err => {

@@ -56,9 +56,9 @@ export default new Vuex.Store({
     users: [],
     income: {
       retire: 2480,
-      nss: 1252,
-      bss: 1876,
-      npay: 1430  
+      nss: 1370,
+      bss: 2000,
+      npay: 1571  
     },
     debt: {
       house: 1143,
@@ -76,6 +76,9 @@ export default new Vuex.Store({
     mortgage:{minimum: 118300,name:"Mortgage",datedue: 15,payment:118300,debttype: 'card',statement_date: new Date('2019-12-15')}}
   },
   getters: {
+    income: state => {
+      return state.income.retire + state.income.nss + state.income.npay + state.income.bss 
+    },
     getAcctObj: state => {
       return state.acctObj;
     },
@@ -226,26 +229,35 @@ export default new Vuex.Store({
   },
   actions: {
     // accounts
-    async loadAccounts ({ commit }) {
+    async checkAccounts ({ commit }) {
       
       //    if (!localStorage.getItem(STORAGE_KEY)){
         
-        console.log(`loadAccounts *********************************************************`)
-        const response = await fetch('http://localhost:3019/accounts');
+        console.log(`checkAccounts *********************************************************`)
+        const response = await fetch('http://localhost:3019/accounts/accountck');
         const json = await response.json();
-         console.log("got json accounts" + json.length);
-      //  console.log(`fetched accounts: ${JSON.stringify(json,null,3)}`)
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(json))
+         console.log("got checked accounts" + json.message);
+         console.log("got checked accounts len" + json.message.length);
+      },
+    async loadAccounts ({ commit }) {
+      
+         if (!localStorage.getItem(STORAGE_KEY)){
+            console.log(`loadAccounts from server  *****************************************`)
+            const response = await fetch('http://localhost:3019/accounts');
+            const json = await response.json();
+            console.log("got json accounts" + json.length);
+            json.forEach(x => x.name = x.name.split('/').join(' '));  // fix name with "/" in name (Discover Card Brian/Nancy)
+          //  console.log(`fetched accounts: ${JSON.stringify(json,null,3)}`)
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(json))
         commit('loadAccounts',json)            
-        //   } else {
-        //     console.log(`loadAccounts from storage**************************************`)
-        //     var response = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-        //     // const response = await fetch('http://localhost:3019/accounts');
-        //     // const json = await response.json();
-        //     // console.log("got json accounts" + json);
-        //     commit('loadAccounts',response)            
-          
-        // }
+          } else {
+            console.log(`loadAccounts from storage  **************************************`)
+            var response = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+            // const response = await fetch('http://localhost:3019/accounts');
+            // const json = await response.json();
+            // console.log("got json accounts" + json);
+            commit('loadAccounts',response)            
+        }
 
         //.then(json => console.log(json)))
       },
@@ -262,12 +274,14 @@ export default new Vuex.Store({
           method: 'POST', // *GET, POST, PUT, DELETE, etc.
         })
         const json = await response.json();
-
-        // console.log(json);
-        commit('addAccount',  json)
+        
+        console.log(`Added account from server: ${JSON.stringify(json, null, 3)}`);
+        // commit('addAccount',  json)
+        commit('addAccount',  account)
+        localStorage.removeItem(STORAGE_KEY)
         
       },
-
+      
 
 
       // const myHeaders = new Headers();
@@ -354,6 +368,9 @@ export default new Vuex.Store({
        // delete axios.defaults.headers.common['Authorization']
         resolve()
     })
+  },
+  reset({commit}){
+    localStorage.removeItem(STORAGE_KEY)
   },
   },
   modules: {

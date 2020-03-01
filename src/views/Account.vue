@@ -1,7 +1,7 @@
 <template>
   <div id="accounts">
  <div class="full-accounts">
-   <button @click="addAccount">Add Account...</button>
+   <button class="add-item" @click="addAccount">Add Account...</button>
     <table class="users">
       <thead>
         <tr>
@@ -34,6 +34,20 @@
             <td>{{a.minimum - a.interest | all | currency}}</td> 
             <td>{{a.payoff | all | currency}}</td> 
           </tr>
+        <tr>
+            <td class="bold">Totals</td> 
+            <td></td>
+            <td></td>
+            <td>{{totals.previous_balance | all | currency}}</td>
+            <td>{{totals.new_balance | all | currency}}</td>
+            <td :class="{red : belowZero(totals)}">{{totals.previous_balance - totals.new_balance | all | currency}}</td>
+            <td>{{totals.interest | all | currency}}</td>
+            <td>{{totals.payment | all | currency}}</td>
+            <td>{{totals.purchases | all | currency}}</td>
+            <td>{{totals.minimum | all | currency}}</td> 
+            <td>{{totals.minimum - totals.interest | all | currency}}</td> 
+            <td></td> 
+          </tr>
       </tbody>
     </table>
     </div>
@@ -57,6 +71,14 @@ export default {
           errors: [],
           account: null,
           months: [],
+          totals: {
+             previous_balance: 0,
+             new_balance: 0,
+             minimum: 0,
+             purchases: 0,
+             payment: 0,
+             interest: 0,
+          }
         }
     },
     computed: {
@@ -94,12 +116,12 @@ export default {
                   accounts.forEach(x => {
                     var d = new Date(x.statement_date);
                     var yrMonth = `date${d.getFullYear()}${d.getMonth()}`;
-                    console.log(`...month ${yrMonth} ${x.name}`)
+                    // console.log(`...month ${yrMonth} ${x.name}`)
                     if (!set[yrMonth]){
                       this.months.push(d.getMonth())
                     }
                   })
-                  console.log(`yrmonths = ${this.months}`)
+                  // console.log(`yrmonths = ${this.months}`)
         accounts = accounts.map(row => {
           Object.keys(row).forEach(k => ex.indexOf(k) > -1 ? delete row[k] : true )
           var d = new Date(row.statement_date);
@@ -113,6 +135,10 @@ export default {
           return (a === b ? 0 : a > b ? 1 : -1) * 1
         })
       }
+      // calculate totals
+      
+      this.totals = this.calcTotals(accounts);
+
       return accounts
       },
       accountList: function(){
@@ -131,6 +157,26 @@ export default {
       }
     },
     methods: {
+      calcTotals: function(accounts){
+        var t = {};
+        t.previous_balance = 0;
+        t.new_balance  = 0;;
+        t.minimum  = 0;
+        t.purchases  = 0;
+        t.payment  = 0;
+        t.interest  = 0;
+        // var t = {};
+        accounts.forEach(x => {
+           t.previous_balance += x.previous_balance;
+           t.new_balance += x.new_balance;
+           t.minimum += x.minimum;
+           t.purchases += x.purchases;
+           t.payment += x.payment;
+           t.interest += x.interest;
+        })
+        return t;
+
+      },
          belowZero: function(a){
           return a.previous_balance - a.new_balance < 0;
         },
@@ -139,8 +185,12 @@ export default {
     //  debugger
       // console.log("view acct " + JSON.stringify(meeting, null, 3))
       // this.$store.dispatch("setViewMeeting", meeting)
-      console.log(`viewAccounts: name = ${name}`)
-      this.$router.push({path:`/history/${name}`})
+      console.log(`Account:viewAccounts: name = ${name}`)
+      // var filteredName = name.replace("/"," ")
+      var filteredName = name.split('/').join(' ')
+      console.log(`Account:viewAccounts: filtered name = ${filteredName}`)
+      // console.log(`viewAccounts: name = ${filteredName}`)
+      this.$router.push({path:`/history/${filteredName}`})
     },
     addAccount: function(){
       
@@ -220,6 +270,13 @@ export default {
 .full-accounts{
   width: 95%;
   margin: auto;
+}
+.add-item{
+  position: absolute;
+  top: 100;
+  left: 5;
+  font-size: 1.6em;
+  background: lightskyblue;
 }
 .edit-button{
   border: 1px solid black;
@@ -359,6 +416,7 @@ export default {
   table-layout: fixed;
   width: 100%;
   white-space: nowrap;
+  margin-top: 30px;
 }
 /* Column widths are based on these cells */
 .row-ID {
@@ -391,7 +449,11 @@ export default {
 .users tr:nth-child(even) {
   background: lightblue;
 }
-.users tr:hover {background-color: rgb(235, 225, 91);}
+.users tr:hover {
+  background-color: rgb(235, 225, 91); 
+  font-size: 1.4em;
+  border: 2px solid black;
+}
 .bold{
   font-weight: 800;
   font-size: 1.4em;

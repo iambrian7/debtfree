@@ -27,6 +27,9 @@ github repository: (https://github.com/iambrian7/debtfree)
 * login.vue supporting server 
 * account.vue - fetch data from mongodb.
 
+# Notes
+* server/nodemon.json must be added manualy. It is not on github
+
 ---
 # Markdown examples
 

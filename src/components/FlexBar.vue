@@ -17,6 +17,7 @@
     <div class="nav-links">
       <router-link to="/"  @click="trigger" >Home</router-link>
       <router-link to="/account"  @click="trigger" >Account</router-link>
+      <div class="income">Monthly Income: {{income | currency}}</div>
     </div>
     <div class="nav-login vertical-center" >
       <button @click="resetLocalstorage">Reset</button>
@@ -51,12 +52,16 @@ module.exports = {
       console.log("isLoggedIn is " + this.$store.state.isLoggedIn)
       return this.$store.state.isLoggedIn
     } 
+    ,
+    income: function(){
+      return this.$store.getters.income
+    }
   },
   methods:{
     resetLocalstorage(){
       console.log("reset localstorage" + this.$store.state.isLoggedIn)
-      localStorage.removeItem(STORAGE_KEY)
-       this.$store.dispatch("loadAccounts")
+ 
+       this.$store.dispatch("reset")
     },
     logout(){
       // this.$store.state.isLoggedIn = false
@@ -70,13 +75,58 @@ module.exports = {
   created(){
       // debugger
       console.log("created FlexBar.vue")
-    }
+    },
+     filters: {
+        fixedtwo: function(value){
+          return parseFloat(value * 100).toFixed(2);
+
+        },
+        all: function(value){
+          if (value instanceof Date){
+            return value.toLocaleDateString()
+          }
+          if (typeof value === 'number'){
+            return parseFloat(value / 100).toFixed(0);
+          }
+          if (typeof value === 'string') {
+          // console.log('filter all strings : ' + value)
+            return value.substr(0,10)
+          }
+        //  debugger
+          return value
+        },
+        monthname: function (value) {
+          if (!value) return ''
+          // value = value.toString()
+          return MONTH_NAMES[value-1 ].substr(0,3)
+        },
+        dayname: function(value){
+          var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+          var valueName = app.$data.today.getDate() - value;
+          var result = new Date(app.$data.today)
+          result.setDate(result.getDate() + valueName)
+          return days[result.getDay()].substr(0,1)
+        },
+        capitalize: function (str) {
+              return str.charAt(0).toUpperCase() + str.slice(1)
+            },
+        currency: function(value){
+            if (!value) return 0;
+            return (value * 1).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+          }
+    },
 }
 </script>
 
 <style>
       * {
       box-sizing: border-box;
+    }
+    .income{
+      display: inline-block;
+      color: white;
+      margin-left: auto;
+      padding-left: 400px;
     }
     .vertical-center {
       margin: 0;
