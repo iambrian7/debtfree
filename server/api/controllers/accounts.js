@@ -1,52 +1,32 @@
 const mongoose = require("mongoose");
 const Accounts = require("../models/accounts");
 const fs = require('fs');
+const path = require('path');
+const util = require("../../util");
+
 
 exports.accounts_check = (req, res, next) => {
-  console.log('account check........')
-  console.time("TIME for tess")
+  // console.log(`account check........dir=${path.resolve(__dirname + '../../data/')}`)
+  // test find accounts file 
+  // var accounts = util.getFile('data/accounts.json')
   // Accounts.find({"owner":"tess"})
+
+
+  // console.time("TIME for tess")
+  // var accounts = util.getFile('/data','accounts.json');
+  // console.timeEnd("TIME for tess")
+  //     res.status(200).json(JSON.parse(accounts));
+
   Accounts.find({})
   .exec()
   .then(docs => {
+
+    // save accounts here
     console.timeEnd("TIME for tess")
     console.log(`all accounts retrieved for Tess:  ${docs.length} accounts. Found in ${JSON.stringify(docs).length} bytes`)
-    var owners = [];
-    docs.forEach(x => 
-      {
-        if(!owners.includes(x.owner)) {
-        console.log(`owner: ${x.owner} including`)
-        if (typeof x.owner == 'undefined') {
-          console.log(`undefined: ${JSON.stringify(x)}`)
-        } else {
-          owners.push(x.owner)
 
-        }
-        }})
-    console.log(`owners are: ${JSON.stringify(owners)}`)
-    // writeFile('myaccounts.json',JSON.stringify(docs));
-      // const response = {
-      //   count: docs.length,
-      //   accounts: docs.map(doc => {
-      //     return {
-      //       data: doc,
-      //       _id: doc._id,
-      //       request: {
-      //         type: "GET",
-      //         url: "http://localhost:3019/accounts/" + doc._id
-      //       }
-      //     };
-      //   })
-      // };
-      //   if (docs.length >= 0) {
-      // res.status(200).json(response);
-     // res.status(200).json(owners);
-      //   } else {
-      //       res.status(404).json({
-      //           message: 'No entries found'
-      //       });
-      //   }
-      res.status(200).json({"message":`route checked****** owners: ${owners}`});
+   util.writeFile(`data/accounts.json`,JSON.stringify(docs));
+      res.status(200).json(docs);
     })
     .catch(err => {
       console.log(`we got a error: ${err}`);
@@ -58,6 +38,13 @@ exports.accounts_check = (req, res, next) => {
 
 exports.accounts_get_all = (req, res, next) => {
   console.log('account accounts_get_all........')
+  
+  ////// test get from file
+  // var accounts = util.getFile('/data','accounts.json');
+  // // const data = JSON.parse(accounts);
+  // res.status(200).json(accounts);
+
+ ///   test get from file
   console.time("mongo atlas get_all")
   Accounts.find({})
   //  .select("name price _id accountImage")

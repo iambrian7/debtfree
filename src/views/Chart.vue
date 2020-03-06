@@ -1,7 +1,24 @@
 <template>
-  <div id="accounts">
+  <div id="chart">
+    <h1>Chart</h1>
  <div class="full-accounts">
-   <button class="add-item" @click="addAccount">Add Account...</button>
+   <table class="users month-summary">
+      <thead>
+        <tr>
+          <th class="row-2 row-name">Month</th>
+          <th class="row-2 row-job">Balance</th>
+          <th class="row-2 row-job">Minimum</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr v-for="(a,i) in monthTotals" :key="i">
+            <td class="bold" > {{ a.date }}</td> 
+            <td>{{a.balance | all | currency}}</td>
+            <td>{{a.minimum | all | currency}}</td> 
+          </tr>
+      </tbody>
+   </table>
     <table class="users">
       <thead>
         <tr>
@@ -20,7 +37,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(a,i) in filteredAccounts" :key="i" @click="viewAccounts(a.name)">
+        <tr v-for="(a,i) in filteredAccounts" :key="i">
             <td class="bold" :class="{green : a.dmonth > 0}"> {{ a.name }}</td> 
             <td>{{a.datedue}}</td>
             <td>{{a.statement_date.substr(0,10)}}</td>
@@ -34,29 +51,17 @@
             <td>{{a.minimum - a.interest | all | currency}}</td> 
             <td>{{a.payoff | all | currency}}</td> 
           </tr>
-        <tr>
-            <td class="bold">Totals</td> 
-            <td></td>
-            <td></td>
-            <td>{{totals.previous_balance | all | currency}}</td>
-            <td>{{totals.new_balance | all | currency}}</td>
-            <td :class="{red : belowZero(totals)}">{{totals.previous_balance - totals.new_balance | all | currency}}</td>
-            <td>{{totals.interest | all | currency}}</td>
-            <td>{{totals.payment | all | currency}}</td>
-            <td>{{totals.purchases | all | currency}}</td>
-            <td>{{totals.minimum | all | currency}}</td> 
-            <td>{{totals.minimum - totals.interest | all | currency}}</td> 
-            <td></td> 
-          </tr>
       </tbody>
     </table>
-    </div>
+</div>
   </div>
 </template>
 <script>
+
+
 //  module.exports = {
 export default {
-  name: "Account",
+  name: "Chart",
   // components: {
   //         'acct-history': httpVueLoader('./account-history.vue'),
   //       },
@@ -65,42 +70,24 @@ export default {
         return {
           today: new Date(),
           title: "Account",
-          // details: false,
-          // editing:false,
-          // adding:false,
-          errors: [],
           account: null,
           months: [],
-          totals: {
-             previous_balance: 0,
-             new_balance: 0,
-             minimum: 0,
-             purchases: 0,
-             payment: 0,
-             interest: 0,
-          }
         }
     },
     computed: {
-      newAccount: function(){
-          var entry = this.account
-          var a = {}
-          a.name = entry.name
-          a.number = entry.number
-          a.previous_balance = entry.new_balance //entry.previous_balance
-          a.new_balance = 0
-        //  a.previous_balance = entry.previous_balance
-          a.datedue = entry.datedue
-          a.minimum = entry.minimum
-          a.interest = entry.interest
-          a.limit = entry.limit
-          a.debttype = entry.debttype
-          a.purchases = entry.purchases
-          a.payment = entry.payment
-          a.statement_date = entry.statement_date
-          a.owner = entry.owner
-          a.statement_date = entry.statement_date.substr(0,10)
-          return a
+      monthTotals: function(){
+        var accts = this.$store.getters.getAcctObj;
+        var d = new Date('2-1-2020');
+        var firstDate = new Date(d.setMonth(d.getMonth()-12));
+        const grandTotal = [];
+        for(var i=0; i<12; i++){
+          var newDate = new Date(d.setMonth(d.getMonth()+1));
+          const tot = getTotals(newDate, accts);
+          tot.date = newDate.toLocaleDateString();
+          grandTotal.push(tot);
+          d = newDate;
+        }
+        return grandTotal;
       },
       filteredAccounts: function(){
         var akount = this.$store.getters.latestAccounts
@@ -137,65 +124,61 @@ export default {
       }
       // calculate totals
       
-      this.totals = this.calcTotals(accounts);
+      // this.totals = this.calcTotals(accounts);
 
       return accounts
       },
-      accountList: function(){
-        if (!this.account) return [];
-        var name = this.account.name;
+      // accountList: function(){
+      //   if (!this.account) return [];
+      //   var name = this.account.name;
 
-        console.log(`accountList: ${name}`)
-        var acctObj = this.$store.getters.getAcctObj;
+      //   console.log(`accountList: ${name}`)
+      //   var acctObj = this.$store.getters.getAcctObj;
 
-        var list =  acctObj[name];
-        return list.sort(function(a, b){
-          var x = a.statement_date
-          var y = b.statement_date
-          return x - y
-        })
-      }
+      //   var list =  acctObj[name];
+      //   return list.sort(function(a, b){
+      //     var x = a.statement_date
+      //     var y = b.statement_date
+      //     return x - y
+      //   })
+      // }
     },
     methods: {
-      calcTotals: function(accounts){
-        var t = {};
-        t.previous_balance = 0;
-        t.new_balance  = 0;;
-        t.minimum  = 0;
-        t.purchases  = 0;
-        t.payment  = 0;
-        t.interest  = 0;
-        // var t = {};
-        accounts.forEach(x => {
-           t.previous_balance += x.previous_balance;
-           t.new_balance += x.new_balance;
-           t.minimum += x.minimum;
-           t.purchases += x.purchases;
-           t.payment += x.payment;
-           t.interest += x.interest;
-        })
-        return t;
+      // calcTotals: function(accounts){
+      //   var t = {};
+      //   t.previous_balance = 0;
+      //   t.new_balance  = 0;;
+      //   t.minimum  = 0;
+      //   t.purchases  = 0;
+      //   t.payment  = 0;
+      //   t.interest  = 0;
+      //   // var t = {};
+      //   accounts.forEach(x => {
+      //      t.previous_balance += x.previous_balance;
+      //      t.new_balance += x.new_balance;
+      //      t.minimum += x.minimum;
+      //      t.purchases += x.purchases;
+      //      t.payment += x.payment;
+      //      t.interest += x.interest;
+      //   })
+      //   return t;
 
-      },
+      // },
          belowZero: function(a){
           return a.previous_balance - a.new_balance < 0;
         },
         
-    viewAccounts: function(name){
-    //  debugger
-      // console.log("view acct " + JSON.stringify(meeting, null, 3))
-      // this.$store.dispatch("setViewMeeting", meeting)
-      console.log(`Account:viewAccounts: name = ${name}`)
-      // var filteredName = name.replace("/"," ")
-      var filteredName = name.split('/').join(' ')
-      console.log(`Account:viewAccounts: filtered name = ${filteredName}`)
-      // console.log(`viewAccounts: name = ${filteredName}`)
-      this.$router.push({path:`/history/${filteredName}`})
-    },
-    addAccount: function(){
-      
-      this.$router.push({path:`/newaccount`})
-    },
+    // viewAccounts: function(name){
+    // //  debugger
+    //   // console.log("view acct " + JSON.stringify(meeting, null, 3))
+    //   // this.$store.dispatch("setViewMeeting", meeting)
+    //   console.log(`Account:viewAccounts: name = ${name}`)
+    //   // var filteredName = name.replace("/"," ")
+    //   var filteredName = name.split('/').join(' ')
+    //   console.log(`Account:viewAccounts: filtered name = ${filteredName}`)
+    //   // console.log(`viewAccounts: name = ${filteredName}`)
+    //   this.$router.push({path:`/history/${filteredName}`})
+    // },
       // getAccountList: function(name){
       //   //var list =  this.accountsObj[name]
       //   var list =  this.$store.state.accountsObj[name]
@@ -253,6 +236,38 @@ export default {
           }
     },
 }
+
+function splitDate(d){
+  const splitDate = d.toLocaleDateString().split('/');
+  return splitDate[2]+splitDate[0]; 
+  
+}
+function getTotals(d, acctObj){
+  let balance = 0;
+  let minimum = 0;
+  
+  // foreach account add to balance and minimum
+  Object.keys(acctObj).forEach(x => {
+    if (x.indexOf('Max') > -1 || x.indexOf('Tess') > -1){
+      // console.log(`excluding ${x}`)
+    } else {
+
+      // console.log(`accout: name=${x} history: ${acctObj[x].length}`)
+      const a = acctObj[x].filter(i => {
+        const date = new Date(i.statement_date);
+        return splitDate(date) == splitDate(d);
+      })
+      if (a[0]){
+        // console.log(`_______________ adding totals to ${a[0].name} balance = ${a[0].new_balance}`)
+        balance += a[0].new_balance;
+        minimum += a[0].minimum;
+        // console.log(`totals = ${balance} min=${minimum}`)
+      }
+    } // not Max or Tess
+  })
+    return {balance, minimum}
+}
+
 </script>
 
 <style>
@@ -263,13 +278,16 @@ export default {
   .green{
     background: greenyellow;
   }
-
+.month-summary{
+  flex: 0 0 300px;
+}
 #accounts{
   width: 100%;
 }
 .full-accounts{
   width: 95%;
   margin: auto;
+  display: flex;
 }
 .add-item{
   position: absolute;

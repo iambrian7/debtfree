@@ -17,6 +17,7 @@
     <div class="nav-links">
       <router-link to="/"  @click="trigger" >Home</router-link>
       <router-link to="/account"  @click="trigger" >Account</router-link>
+      <router-link to="/chart"  @click="trigger" >Chart</router-link>
       <div class="income">Monthly Income: {{income | currency}}</div>
     </div>
     <div class="nav-login vertical-center" >

@@ -236,8 +236,8 @@ export default new Vuex.Store({
         console.log(`checkAccounts *********************************************************`)
         const response = await fetch('http://localhost:3019/accounts/accountck');
         const json = await response.json();
-         console.log("got checked accounts" + json.message);
-         console.log("got checked accounts len" + json.message.length);
+         console.log("got checked accounts" + json.length);
+        //  console.log("got checked accounts len" + json.message.length);
       },
     async loadAccounts ({ commit }) {
       
@@ -265,6 +265,8 @@ export default new Vuex.Store({
         // var lunches = (await LunchService.index()).data
         var url = "http://localhost:3019/accounts"
         console.log(` adding account ${JSON.stringify(account, null, 3)}`)
+        localStorage.removeItem(STORAGE_KEY)
+        console.log("actions: addAccount: remove localStorage" )
         const response = await fetch(url, {
           body: JSON.stringify(account), // must match 'Content-Type' header
           headers: {
@@ -278,7 +280,6 @@ export default new Vuex.Store({
         console.log(`Added account from server: ${JSON.stringify(json, null, 3)}`);
         // commit('addAccount',  json)
         commit('addAccount',  account)
-        localStorage.removeItem(STORAGE_KEY)
         
       },
       
