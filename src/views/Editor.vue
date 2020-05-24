@@ -1,35 +1,21 @@
 <template>
-  <div id="chart">
+  <div id="editor">
     <h1>Chart</h1>
  <div class="full-accounts">
-   <table  class="users month-summary" summary="This table shows the sales figures for the four products in the Widget product line in 2007. The figures are broken down by quarter.">
-  <caption>Summary of last 10 months</caption>
-   <!-- <table class="users month-summary"> -->
-      <thead>
-        <tr>
-          <th class="row-2 row-name">Month</th>
-          <th class="row-2 row-job">Balance</th>
-          <th class="row-2 row-job">Interest</th>
-          <th class="row-2 row-job">Minimum</th>
-        </tr>
-      </thead>
 
-      <tbody>
-        <tr v-for="(a,i) in monthTotals" :key="i">
-            <td class="bold" > {{ a.date }}</td> 
-            <td>{{a.balance | all | currency}}</td>
-            <td>{{a.interest | all | currency}}</td>
-            <td>{{a.minimum | all | currency}}</td> 
-          </tr>
-      </tbody>
-   </table>
+   <div class="account-list">
+     <div class="account-item" v-for="(item, i) in accountNames" :key="i" @click="choozeAccount(item)" :class="{active: chosenAccount[0].name == item}">
+       {{i+1}}. {{  item }}
+    </div>
+   </div>
+
     <table class="users">
-      <caption>Accounts for today </caption>
+      <caption>Accounts for {{chosenAccount[0].name}} </caption>
       <thead>
         <tr>
-          <th class="row-2 row-name">Name</th>
+          <!-- <th class="row-2 row-name">Name</th> -->
           <th class="row-2 row-ID">Due</th>
-          <th class="row-2 row-job">Date</th>
+          <th class="row-2 row-ID">Date</th>
           <th class="row-2 row-ID">Bal</th>
           <th class="row-2 row-ID">New Bal</th>
           <th class="row-2 row-ID">Diff</th>
@@ -37,13 +23,11 @@
           <th class="row-2 row-ID">Paid</th>
           <th class="row-2 row-ID">Purchases</th>
           <th class="row-2 row-ID">Min Due</th>
-          <th class="row-2 row-ID">Pay Off</th>
-          <th class="row-2 row-ID">Pay Off Run</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(a,i) in filteredAccounts" :key="i">
-            <td class="bold" :class="{green : a.dmonth > 0}"> {{ a.name }}</td> 
+        <tr v-for="(a,i) in chosenAccount" :key="i" @dblclick="deleteAccount(a)">
+            <!-- <td class="bold" :class="{green : a.dmonth > 0}"> {{ a.name }}</td>  -->
             <td>{{a.datedue}}</td>
             <td>{{a.statement_date.substr(0,10)}}</td>
             <td>{{a.previous_balance | all | currency}}</td>
@@ -53,8 +37,8 @@
             <td>{{a.payment | all | currency}}</td>
             <td>{{a.purchases | all | currency}}</td>
             <td>{{a.minimum | all | currency}}</td> 
-            <td>{{a.minimum - a.interest | all | currency}}</td> 
-            <td>{{a.payoff | all | currency}}</td> 
+            <!-- <td>{{a.minimum - a.interest | all | currency}}</td>  -->
+            <!-- <td>{{a.payoff | all | currency}}</td>  -->
           </tr>
       </tbody>
     </table>
@@ -66,7 +50,7 @@
 
 //  module.exports = {
 export default {
-  name: "Chart",
+  name: "Editor",
   // components: {
   //         'acct-history': httpVueLoader('./account-history.vue'),
   //       },
@@ -74,29 +58,29 @@ export default {
    data: function() {
         return {
           today: new Date(),
-          title: "Account",
+          title: "Account Editor",
           account: null,
           months: [],
+          selectedAccount: 'Discover 2',
+          accountNames: [],
           selectedAccounts: []
         }
     },
     computed: {
-      monthTotals: function(){
-        var accts = this.$store.getters.getAcctObj;
-        var d = new Date('5-1-2020');
-        var firstDate = new Date(d.setMonth(d.getMonth()-12));
-        const grandTotal = [];
-        for(var i=0; i<12; i++){
-          var newDate = new Date(d.setMonth(d.getMonth()+1));
-          const tot = getTotals(newDate, accts);
-          tot.date = newDate.toLocaleDateString();
-          grandTotal.push(tot);
-          d = newDate;
-        }
-        return grandTotal;
+      chosenAccount(){
+        this.selectedAccount = this.$store.state.selectedAccount;
+        console.log(`computing chosenAccount: ${this.selectedAccount} ********************`)
+        const sortKey = 'statement_date';
+        const accounts = this.$store.state.accounts.filter(x => x.name == this.selectedAccount);
+        return accounts.sort(function (a, b) {
+          a = a[sortKey]
+          b = b[sortKey]
+          return (a === b ? 0 : a > b ? 1 : -1) * 1
+        })
       },
       filteredAccounts: function(){
         // var akount = this.$store.getters.latestAccounts
+        console.log('compute: filteredAccounts')
        var sortKey = "datedue"
        var ex = ["__v","updated","_id"]
       var filterKey = '' // this.filterKey && this.filterKey.toLowerCase()
@@ -131,16 +115,25 @@ export default {
       },
     },
     methods: {
-         belowZero: function(a){
-          return a.previous_balance - a.new_balance < 0;
-        },
+      choozeAccount(item){
+        this.$store.state.selectedAccount = item;
+      },
+      deleteAccount(acct){
+        // console.log(`delete: ${JSON.stringify(acct, null, 3) }`);
+        this.$store.dispatch('deleteAccount',acct);
+      },
+      belowZero: function(a){
+      return a.previous_balance - a.new_balance < 0;
+      },
     },
     created(){
       this.$store.dispatch("loadAccounts")
-      console.log("created account.vue")
-       this.selectedAccounts = this.$store.getters.latestAccounts
+      console.log("created Editor.vue")
+      const sortKey = 'datedue';
+      var names = Object.keys(this.$store.getters.getAcctObj);
+      this.accountNames = names.sort();
     },
-          filters: {
+    filters: {
         fixedtwo: function(value){
           return parseFloat(value * 100).toFixed(2);
 
@@ -186,37 +179,13 @@ function splitDate(d){
   return splitDate[2]+splitDate[0]; 
   
 }
-function getTotals(d, acctObj){
-  let balance = 0;
-  let interest = 0;
-  let minimum = 0;
-  
-  // foreach account add to balance and minimum
-  Object.keys(acctObj).forEach(x => {
-    if (x.indexOf('Max') > -1 || x.indexOf('Tess') > -1){
-      // console.log(`excluding ${x}`)
-    } else {
-
-      // console.log(`accout: name=${x} history: ${acctObj[x].length}`)
-      const a = acctObj[x].filter(i => {
-        const date = new Date(i.statement_date);
-        return splitDate(date) == splitDate(d);
-      })
-      if (a[0]){
-        // console.log(`_______________ adding totals to ${a[0].name} balance = ${a[0].new_balance}`)
-        balance += a[0].new_balance;
-        interest += a[0].interest;
-        minimum += a[0].minimum;
-        // console.log(`totals = ${balance} min=${minimum}`)
-      }
-    } // not Max or Tess
-  })
-    return {balance, interest, minimum}
-}
 
 </script>
 
 <style>
+.active{
+  background: chartreuse;
+}
 .red{
     background: rgb(230, 62, 62);
     color: white;
@@ -233,8 +202,18 @@ function getTotals(d, acctObj){
     font-weight: 600;
     padding: 5px 0;
   }
-.month-summary{
+.account-list{
   flex: 0 0 300px;
+}
+.account-item{
+  cursor: pointer;
+  font-size: 1.4em;
+  padding: 0 10px;
+  margin: 5px;
+  border: 1px solid black;
+}
+.account-item:hover{
+  background: lightskyblue;
 }
 #accounts{
   width: 100%;
@@ -337,9 +316,7 @@ function getTotals(d, acctObj){
         /* display: flex; */
         /* flex-direction: column; */
       }
-      .account-list{
-        display: none;
-      }
+   
     .form-labels{
       display: grid;
       grid-template-columns: repeat(2, 1fr);

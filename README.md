@@ -29,7 +29,7 @@ github repository: (https://github.com/iambrian7/debtfree)
 
 # Notes
 * server/nodemon.json must be added manualy. It is not on github
-
+* cd server ; yarn start
 ---
 # Markdown examples
 

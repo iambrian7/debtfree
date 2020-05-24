@@ -1,5 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import axios from 'axios';
+
+import { parseItem, parseList } from './action-utils';
 
 Vue.use(Vuex)
 // localStorage persistence
@@ -49,6 +52,7 @@ export default new Vuex.Store({
     lunches: [],
     groups: [],
     accounts: [],
+    selectedAccount: 'Discover 2',
     acctObj: {},
     isLoggedIn: false,
     token: localStorage.getItem('token') || '',
@@ -226,6 +230,12 @@ export default new Vuex.Store({
       state.token = ''
       state.isLoggedIn = false
     },
+    DELETE_ACCOUNT(state, account){
+      // [DELETE_HERO](state, hero) {
+        state.accounts = [...state.accounts.filter(p => p._id !== account._id)]; // replace heroes
+      //},
+    }
+
   },
   actions: {
     // accounts
@@ -282,7 +292,20 @@ export default new Vuex.Store({
         commit('addAccount',  account)
         
       },
-      
+      async deleteAccount({ commit }, account) {
+        console.log(`store: deleteAccount : ${JSON.stringify(account, null, 3) }`);
+        localStorage.removeItem(STORAGE_KEY)
+
+        var url = "http://localhost:3019/accounts/"
+        try {
+          const response = await axios.delete(`${url}${account._id}`);
+          parseItem(response, 200);
+          commit('DELETE_ACCOUNT', account);
+          return null;
+        } catch (error) {
+          console.error(error);
+        }
+      },
 
 
       // const myHeaders = new Headers();

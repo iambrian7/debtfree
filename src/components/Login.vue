@@ -12,6 +12,8 @@
       
     <div id="login" v-if="!openRegister">
       <form class="login" @submit.prevent="login">
+         <FloatingLabel :info="user"/>
+
         <label>Email</label>
         <input required v-model="email" type="text" placeholder="aaa@gmail.com"/>
         <label>Password</label>
@@ -44,8 +46,8 @@
     </div>
     </div> <!-- end of .right -->
   </div>
-  </template>
-  
+</template>
+
   <style lang="scss">
   /* * {
   font-family: -apple-system, BlinkMacSystemFont, "San Francisco", Helvetica, Arial, sans-serif;
@@ -259,11 +261,20 @@ input:focus {
 
 <script>
  // import {AUTH_REQUEST} from 'actions/auth'
-module.exports = {
-// export default {
+   import FloatingLabel from '@/components/floating-label.vue'
+// module.exports = {
+export default {
     name: 'login',
+    components: {
+      FloatingLabel
+    },
     data () {
       return {
+        user: {
+          name: '',
+          label: "My Name",
+          type: 'text'
+        },
         username: '',
         password: '',
         email: "",

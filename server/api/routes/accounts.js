@@ -58,7 +58,8 @@ router.get("/:accountId", AccountsController.accounts_get_account);
 
 router.patch("/:accountId", checkAuth, AccountsController.accounts_update_account);
 
-router.delete("/:accountId", checkAuth, AccountsController.accounts_delete);
+router.delete("/:accountId", AccountsController.accounts_delete);
+// router.delete("/:accountId", checkAuth, AccountsController.accounts_delete);
 
 
 module.exports = router;

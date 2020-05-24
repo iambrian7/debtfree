@@ -6,22 +6,22 @@
       <thead>
         <tr>
           <th class="row-2 row-name">Name</th>
-          <th class="row-2 row-ID">Due</th>
-          <th class="row-2 row-job">Date</th>
-          <th class="row-2 row-ID">Bal</th>
-          <th class="row-2 row-ID">New Bal</th>
-          <th class="row-2 row-ID">Diff</th>
-          <th class="row-2 row-ID">Interest</th>
-          <th class="row-2 row-ID">Paid</th>
-          <th class="row-2 row-ID">Purchases</th>
-          <th class="row-2 row-ID">Min Due</th>
-          <th class="row-2 row-ID">Pay Off</th>
-          <th class="row-2 row-ID">Pay Off Run</th>
+          <th class="row-2 rowid">Due</th>
+          <th class="row-2 row-id">Date</th>
+          <th class="row-2 row-id">Bal</th>
+          <th class="row-2 row-id">New Bal</th>
+          <th class="row-2 row-id">Diff</th>
+          <th class="row-2 row-id">Interest</th>
+          <th class="row-2 row-id">Paid</th>
+          <th class="row-2 row-id">Purchases</th>
+          <th class="row-2 row-id">Min Due</th>
+          <th class="row-2 row-id">Pay Off</th>
+          <th class="row-2 row-id">Pay Off Run</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(a,i) in filteredAccounts" :key="i" @click="viewAccounts(a.name)">
-            <td class="bold" :class="{green : a.dmonth > 0}"> {{ a.name }}</td> 
+            <td class="bold" :class="{green : a.dmonth > today.getMonth()-1}"> {{ a.name }}</td> 
             <td>{{a.datedue}}</td>
             <td>{{a.statement_date.substr(0,10)}}</td>
             <td>{{a.previous_balance | all | currency}}</td>
@@ -34,7 +34,7 @@
             <td>{{a.minimum - a.interest | all | currency}}</td> 
             <td>{{a.payoff | all | currency}}</td> 
           </tr>
-        <tr>
+        <tr class="account-totals">
             <td class="bold">Totals</td> 
             <td></td>
             <td></td>
@@ -261,11 +261,16 @@ export default {
     color: white;
   }
   .green{
-    background: greenyellow;
+    background: rgb(66, 182, 111);
+    color: white;
   }
 
 #accounts{
   width: 100%;
+}
+.account-totals{
+  font-size: 1.2em;
+  background: #edf35b;
 }
 .full-accounts{
   width: 95%;
@@ -419,12 +424,16 @@ export default {
   margin-top: 30px;
 }
 /* Column widths are based on these cells */
-.row-ID {
-  width: 5%;
+.rowid{
+  width: 10px;
+}
+.row-id {
+  width: 2%;
 }
 .row-name {
-  width: 15%;
+  width: 5%;
 }
+.row-date{ width: 5%;}
 .row-job {
   width: 10%;
 }

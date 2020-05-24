@@ -40,6 +40,10 @@ export default {
 }
 </script>
 <style>
+  * {
+      margin: 0;
+      padding: 0;
+    }
 body {
       background-color: #d7dae0;
       font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;

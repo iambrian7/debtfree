@@ -18,6 +18,7 @@
       <router-link to="/"  @click="trigger" >Home</router-link>
       <router-link to="/account"  @click="trigger" >Account</router-link>
       <router-link to="/chart"  @click="trigger" >Chart</router-link>
+      <router-link to="/editor" >Editor</router-link>
       <div class="income">Monthly Income: {{income | currency}}</div>
     </div>
     <div class="nav-login vertical-center" >
@@ -27,6 +28,12 @@
          <!-- <router-link @click="logout" v-if="isLoggedIn">{{user}} Logout</router-link> -->
          <a @click="logout" v-else> Logout</a>
          <div class="user-nav" v-if="isLoggedIn">( {{user}} )</div>
+    <!-- <div class="login-modal">
+      <label for="login-input">
+        <input type="text" id="login-input">
+      </label>
+      <button>Login</button>
+    </div> -->
     </div>
   </div>
   </div>
@@ -123,6 +130,11 @@ module.exports = {
       * {
       box-sizing: border-box;
     }
+    .router-link-exact-active,
+    .active{
+      /* background: chocolate; */
+      border-bottom: 2px solid white;
+    }
     .income{
       display: inline-block;
       color: white;
@@ -185,10 +197,25 @@ module.exports = {
       float: right;
       font-size: 12px;
     }
+    .login-modal{
+      display: none;
+      position: absolute;
+    top: -6px;
+    right: -21px;
+      font-size: 2em;
+      padding: 10px;
+      border: 1px solid black;
+      border-radius: 10px;
+      background: rgb(255, 238, 0);
+    }
+    .nav-login:hover .login-modal{
+      display: block;
+      /* flex-direction: column; */
+    }
     .nav > .nav-header > .nav-title-bar > a,
     .nav > .nav-links > a {
       display: inline-block;
-      padding: 13px 10px 13px 10px;
+      padding: 3px 10px 3px 10px;
       text-decoration: none;
       color: #efefef;
     }
@@ -200,7 +227,12 @@ module.exports = {
     .nav > #nav-check {
       display: none;
     }
-
+ .nav-links li:hover,
+ .nav-links li.router-link-active,
+ .nav-links li.router-link-exact-active {
+   background-color: indianred;
+   cursor: pointer;
+ }
     @media (max-width:600px) {
       .nav > .nav-btn {
         display: inline-block;

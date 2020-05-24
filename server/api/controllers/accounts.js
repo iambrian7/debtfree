@@ -182,9 +182,13 @@ exports.accounts_update_account = (req, res, next) => {
 
 exports.accounts_delete = (req, res, next) => {
   const id = req.params.accountId;
-  Account.remove({ _id: id })
+  console.log(`accounts_delete: deleting: id = ${id}`)
+  
+  // Account.remove({ _id: id })
+  Accounts.remove({ _id: id })
     .exec()
     .then(result => {
+      console.log(`...deleted ok for ${id}`)
       res.status(200).json({
        _id: id
       });
