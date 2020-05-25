@@ -253,7 +253,8 @@ export default new Vuex.Store({
       
          if (!localStorage.getItem(STORAGE_KEY)){
             console.log(`loadAccounts from server  *****************************************`)
-            const response = await fetch('http://localhost:3019/accounts');
+            const response = await fetch('./accounts');
+            // const response = await fetch('http://localhost:3019/accounts');
             const json = await response.json();
             console.log("got json accounts" + json.length);
             json.forEach(x => x.name = x.name.split('/').join(' '));  // fix name with "/" in name (Discover Card Brian/Nancy)

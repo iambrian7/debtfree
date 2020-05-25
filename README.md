@@ -6,16 +6,21 @@ yarn install
 ```
 
 ### Compiles and hot-reloads for development
+vue.config.js - hooks into dev server and runs app routes with development port
+configur.js - handle mongo connection and routes
+
 ```
 yarn serve
 ```
 
 ### Compiles and minifies for production
+app.js loads configure.js and serves out the static files
 ```
 yarn build
 ```
 
 ### Customize configuration
+
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ---
