@@ -6,7 +6,7 @@ yarn install
 ```
 
 ### Compiles and hot-reloads for development
-vue.config.js - hooks into dev server and runs app routes with development port
+vue.confige.js - hooks into dev server and runs app routes with development port
 configur.js - handle mongo connection and routes
 
 ```

@@ -240,56 +240,33 @@ export default new Vuex.Store({
   actions: {
     // accounts
     async checkAccounts ({ commit }) {
-      
-      //    if (!localStorage.getItem(STORAGE_KEY)){
-        
-        console.log(`checkAccounts *********************************************************`)
-        const response = await fetch('http://localhost:3019/accounts/accountck');
+        const response = await fetch('/accounts/accountck');
         const json = await response.json();
-         console.log("got checked accounts" + json.length);
-        //  console.log("got checked accounts len" + json.message.length);
       },
     async loadAccounts ({ commit }) {
-      
          if (!localStorage.getItem(STORAGE_KEY)){
-            console.log(`loadAccounts from server  *****************************************`)
             const response = await fetch('./accounts');
-            // const response = await fetch('http://localhost:3019/accounts');
             const json = await response.json();
-            console.log("got json accounts" + json.length);
             json.forEach(x => x.name = x.name.split('/').join(' '));  // fix name with "/" in name (Discover Card Brian/Nancy)
-          //  console.log(`fetched accounts: ${JSON.stringify(json,null,3)}`)
             localStorage.setItem(STORAGE_KEY, JSON.stringify(json))
-        commit('loadAccounts',json)            
+            commit('loadAccounts',json)            
           } else {
             console.log(`loadAccounts from storage  **************************************`)
             var response = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-            // const response = await fetch('http://localhost:3019/accounts');
-            // const json = await response.json();
-            // console.log("got json accounts" + json);
             commit('loadAccounts',response)            
         }
-
-        //.then(json => console.log(json)))
       },
       async addAccount ({ commit },account) {
-        // var lunches = (await LunchService.index()).data
-        var url = "http://localhost:3019/accounts"
-        console.log(` adding account ${JSON.stringify(account, null, 3)}`)
+        var url = "/accounts"
         localStorage.removeItem(STORAGE_KEY)
-        console.log("actions: addAccount: remove localStorage" )
         const response = await fetch(url, {
           body: JSON.stringify(account), // must match 'Content-Type' header
           headers: {
-            // 'user-agent': 'Mozilla/4.0 MDN Example',
             "Content-type": "application/json; charset=UTF-8"
           },
           method: 'POST', // *GET, POST, PUT, DELETE, etc.
         })
         const json = await response.json();
-        
-        console.log(`Added account from server: ${JSON.stringify(json, null, 3)}`);
-        // commit('addAccount',  json)
         commit('addAccount',  account)
         
       },
@@ -307,43 +284,23 @@ export default new Vuex.Store({
           console.error(error);
         }
       },
-
-
-      // const myHeaders = new Headers();
-
-      // myHeaders.append('Content-Type', 'application/json');
-      // myHeaders.append('Authorization', '1234abcd');
-      
-      // return fetch('http://localhost:8080/clients/', {
-      //   method: 'GET',
-      //   headers: myHeaders,
-      // })
-
-
       async updateAccount ({ commit, state },payload) {
-        // var lunches = (await LunchService.index()).data
         var url = "http://localhost:3019/accounts/"+payload._id
-        console.log(` updateAccount (store.js)=${JSON.stringify(payload, null, 3)}`)
-        console.log(` updateAccount (store.js)=${url}`)
-        console.log(` updateAccount (store.js) token=${state.token}`)
         const response = await fetch(url, {
           body: JSON.stringify(payload), // must match 'Content-Type' header
           headers: {
-            // 'user-agent': 'Mozilla/4.0 MDN Example',
             'authorization': state.token,
             "Content-type": "application/json; charset=UTF-8"
           },
           method: 'PATCH', // *GET, POST, PUT, DELETE, etc.
         })
         const json = await response.json();
-        // console.log(json);
         commit('updateAccount',  json)
        },
        // user
      async login({commit}, data){
-      console.log(` adding user ${JSON.stringify(data, null, 3)}`)
       commit('auth_request')
-      const response = await fetch('http://localhost:3019/user/login', {
+      const response = await fetch('/user/login', {
           body: JSON.stringify(data), // must match 'Content-Type' header
           headers: {
             "Content-type": "application/json; charset=UTF-8"
@@ -351,21 +308,15 @@ export default new Vuex.Store({
           method: 'POST', // *GET, POST, PUT, DELETE, etc.
         })
         const json = await response.json();
-        // console.log(json);
-        // commit('user added',  json)
-        console.log(` response from fetch user ${JSON.stringify(json, null, 3)}`)
         const token = json.token
         const myuser = json.user
-        //	debugger
         localStorage.setItem('token', token)
-      // Add the following line:
-    //  axios.defaults.headers.common['Authorization'] = token
       commit('auth_success', {token, myuser})
   },
     async register({commit}, data){
       console.log(` register user ${JSON.stringify(data, null, 3)}`)
       commit('auth_request')
-      const response = await fetch('http://localhost:3019/user/signup', {
+      const response = await fetch('/user/signup', {
           body: JSON.stringify(data), // must match 'Content-Type' header
           headers: {
             "Content-type": "application/json; charset=UTF-8"
@@ -373,24 +324,16 @@ export default new Vuex.Store({
           method: 'POST', // *GET, POST, PUT, DELETE, etc.
         })
         const json = await response.json();
-        // console.log(json);
-        // commit('user added',  json)
-        console.log(` response from fetch user ${JSON.stringify(json, null, 3)}`)
         const token = json.token
         const myuser = json.user
-        //	debugger
         localStorage.setItem('token', token)
-      // Add the following line:
-    //  axios.defaults.headers.common['Authorization'] = token
       commit('auth_success', {token, myuser})
   },
        // accounts
   logout({commit}){
     return new Promise((resolve, reject) => {
-      console.log(`mystore: actions: logout........`)
         commit('logout')
         localStorage.removeItem('token')
-       // delete axios.defaults.headers.common['Authorization']
         resolve()
     })
   },
