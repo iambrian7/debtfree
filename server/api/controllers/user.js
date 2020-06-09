@@ -13,6 +13,7 @@ exports.user_signup = (req, res, next) => {
           message: "Mail exists"
         });
       } else {
+        console.log(`server: user.js -- signing up new user: ${req.email}`);
         bcrypt.hash(req.body.password, 10, (err, hash) => {
           if (err) {
             return res.status(500).json({
@@ -46,6 +47,12 @@ exports.user_signup = (req, res, next) => {
 
 exports.user_login = (req, res, next) => {
   console.log(`user_login = ${req.body.email}`)
+  console.log(`process.env.VUE_APP_JWT = ${process.env.VUE_APP_JWT}`)
+
+  // console.log(`user_login(all process.env) = ${JSON.stringify(process.env, null, 3)}`)
+  // console.log(`user_login(all process.env.development.local) = ${JSON.stringify(process.env.development.local, null, 3)}`)
+  // console.log(`user_login(process.env.development.local.JWT_KEY) = ${process.env.development.local.JWT_KEY}`)
+  // console.log(`user_login(process.env.JWT_KEY) = ${process.env.JWT_KEY}`)
   User.find({ email: req.body.email })
     .exec()
     .then(user => {
@@ -61,7 +68,8 @@ exports.user_login = (req, res, next) => {
             message: "Auth failed"
           });
         }
-   //     if (result) {
+   //     if (result) {y
+
           console.log(`user.js: user_login: ${JSON.stringify(result, null, 3)}`);
           const token = jwt.sign(
             {
@@ -69,7 +77,8 @@ exports.user_login = (req, res, next) => {
               userId: user[0]._id
               //TODO add owner to accounts.find({"owner: user[0].email"})
             },
-            process.env.JWT_KEY,
+            // process.env.JWT_KEY,
+            process.env.VUE_APP_JWT,
             {
               expiresIn: "1h"
             }

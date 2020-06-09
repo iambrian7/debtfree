@@ -151,7 +151,7 @@
           return current;
         },
         submitAdd: function(){
-          console.log(`updating this account....`);
+          console.log(`account-history:add this account....`);
           if (this.newAccount.new_balance == 0){
             alert("enter new balance")
           } else {

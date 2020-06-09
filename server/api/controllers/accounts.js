@@ -6,13 +6,14 @@ const util = require("../../util");
 
 
 exports.accounts_check = (req, res, next) => {
-  // console.log(`account check........dir=${path.resolve(__dirname + '../../data/')}`)
+  var dataPath = path.resolve(__dirname + '../../data/');
+  console.log(`account check........dir=${dataPath}`)
   // test find accounts file 
   // var accounts = util.getFile('data/accounts.json')
   // Accounts.find({"owner":"tess"})
 
 
-  // console.time("TIME for tess")
+  console.time("TIME for tess")
   // var accounts = util.getFile('/data','accounts.json');
   // console.timeEnd("TIME for tess")
   //     res.status(200).json(JSON.parse(accounts));
@@ -25,7 +26,7 @@ exports.accounts_check = (req, res, next) => {
     console.timeEnd("TIME for tess")
     console.log(`all accounts retrieved for Tess:  ${docs.length} accounts. Found in ${JSON.stringify(docs).length} bytes`)
 
-   util.writeFile(`data/accounts.json`,JSON.stringify(docs));
+   util.writeFile(dataPath,JSON.stringify(docs));
       res.status(200).json(docs);
     })
     .catch(err => {

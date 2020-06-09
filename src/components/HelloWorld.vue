@@ -2,42 +2,97 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <button @click="checkAccount">Check Accounts</button>
-    <form action="">
+      <!-- <div class="user-info" v-if="isLoggedIn">(User: {{loggedInAsUser}} )</div> -->
+    <form action="" v-if="!isLoggedIn">
 
-   <div class="input-group">
-  <input type="text" required>
-  <span class="highlight"></span>
-  <span class="bar"></span>
-  <label>Username</label>
-</div>
+      <div class="input-group">
+        <input type="text" required v-model="email">
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>Username</label>
+      </div>
 
-<div class="input-group">
-  <input type="password" required>
-  <span class="highlight"></span>
-  <span class="bar"></span>
-  <label>Password</label>
-</div>
+      <div class="input-group">
+        <input type="password" required v-model="password">
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>Password</label>
+      </div>
+      <div class="input-group">
+        <a href="#" v-on:click="submit">SUBMIT</a>
+      </div>
     </form>
+    <div class="welcome" v-else>
+      <h2>Welcome to {{loggedInAsUser}}</h2>
+      <Summary />
+    </div>
   </div>
 </template>
 
 <script>
+import Summary from '@/components/summary.vue'
+
 export default {
   name: 'HelloWorld',
   props: {
     msg: String
   },
+   components: {
+    Summary
+  },
+   computed: {
+    loggedInAsUser: function(){
+      var x =this.$store.state.user; 
+      console.log(`state: ${JSON.stringify(x, null, 3)}`);
+
+      return x;
+    },
+    isLoggedIn: function(){
+      console.log("isLoggedIn is " + this.$store.state.isLoggedIn)
+      return this.$store.state.isLoggedIn
+    } 
+  },
   methods: {
     checkAccount: function(){
       this.$store.dispatch("checkAccounts");
-    }
-  }
+    },
+    submit(){
+      alert(`submit: ${this.email}`)
+      const { email, password } = this
+        console.log("login.vue method: login: " + email + "  " + password)
+        this.$store.dispatch('login', { email, password })
+		   		.then(() => {
+						//  this.$router.push('/')
+						 
+						 })
+		   		.catch(err => console.log(err))
+		   	}
+  },
+  data () {
+      return {
+        user: {
+          name: '',
+          label: "My Name",
+          type: 'text'
+        },
+        username: '',
+        password: 'bkcbkc07',
+        email: "brian@gmail.com",
+        confirmpassword: '',
+        // username: 'aaa',
+        // password: 'aaaa',
+        // email: "aaa@gmail.com",
+        // confirmpassword: 'aaaa',
+      }
+    },
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .hello{
+    margin-top: 50px;
+  padding: 20px;
 }
 .hello button{
   font-size: 2em;
@@ -64,7 +119,11 @@ a {
   color: #42b983;
 }
 /* https://stackoverflow.com/questions/38301774/how-to-do-floating-of-labels-in-css */
-
+.user-info{
+  width: 100px;
+  height: 50px;
+  font-size: 2em;
+}
 .input-group {
   position: relative;
   margin: 40px 0 20px;

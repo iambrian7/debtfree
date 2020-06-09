@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import axios from 'axios';
 
 import { parseItem, parseList } from './action-utils';
+import AccountService from '@/services/AccountService'
 
 Vue.use(Vuex)
 // localStorage persistence
@@ -139,7 +140,8 @@ export default new Vuex.Store({
         return a.new_balance > 300 * 100; // nothing less than $200
       }
        var accountsObj = {}
-       state.accounts.filter(removeZeros).forEach(function(a){
+       state.accounts.forEach(function(a){
+      //  state.accounts.filter(removeZeros).forEach(function(a){
          if (!accountsObj[a.name]){
            accountsObj[a.name] = [a]
           } else {
@@ -240,61 +242,74 @@ export default new Vuex.Store({
   actions: {
     // accounts
     async checkAccounts ({ commit }) {
-        const response = await fetch('/accounts/accountck');
-        const json = await response.json();
-      },
+      const response = await fetch('/accounts/accountck');
+      const json = await response.json();
+      console.log(`store:actions:checkAccounts: accounts len = ${json.length}`)
+    },
     async loadAccounts ({ commit }) {
-         if (!localStorage.getItem(STORAGE_KEY)){
-            const response = await fetch('./accounts');
-            const json = await response.json();
+      // if (!localStorage.getItem(STORAGE_KEY)){
+        // commit('loadAccounts',  (await AccountService.index()).data)
+        console.log(`loadAccounts from server  **************************************`)
+        const json =  (await AccountService.index()).data
+        // console.log(`store: loadAccounts : ${JSON.stringify(json, null, 3) }`);
+            // const response = await fetch('./accounts');
+            // const json = await response.json();
             json.forEach(x => x.name = x.name.split('/').join(' '));  // fix name with "/" in name (Discover Card Brian/Nancy)
             localStorage.setItem(STORAGE_KEY, JSON.stringify(json))
             commit('loadAccounts',json)            
-          } else {
-            console.log(`loadAccounts from storage  **************************************`)
-            var response = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-            commit('loadAccounts',response)            
-        }
-      },
-      async addAccount ({ commit },account) {
-        var url = "/accounts"
-        localStorage.removeItem(STORAGE_KEY)
-        const response = await fetch(url, {
-          body: JSON.stringify(account), // must match 'Content-Type' header
-          headers: {
-            "Content-type": "application/json; charset=UTF-8"
-          },
-          method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        })
-        const json = await response.json();
-        commit('addAccount',  account)
-        
-      },
-      async deleteAccount({ commit }, account) {
-        console.log(`store: deleteAccount : ${JSON.stringify(account, null, 3) }`);
-        localStorage.removeItem(STORAGE_KEY)
+          // } else {
+          //   console.log(`loadAccounts from storage  **************************************`)
+          //   var response = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
+          //   commit('loadAccounts',response)            
+          // }
+        },
+        async addAccount ({ commit },account) {
+          ///  var url = "/accounts"
+          localStorage.removeItem(STORAGE_KEY)
+          console.log(`store: addAccount : ${JSON.stringify(account, null, 3) }`);
+          commit('adddAccount',  (await AccountService.post(account)).data)
+          // const response = await fetch(url, {
+            //   body: JSON.stringify(account), // must match 'Content-Type' header
+            //   headers: {
+              //     "Content-type": "application/json; charset=UTF-8"
+              //   },
+              //   method: 'POST', // *GET, POST, PUT, DELETE, etc.
+              // })
+              // const json = await response.json();
+              commit('addAccount',  account)
+              
+            },
+            async deleteAccount({ commit }, account) {
+              console.log(`store: deleteAccount : ${JSON.stringify(account, null, 3) }`);
+              localStorage.removeItem(STORAGE_KEY)
+              commit('DELETE_ACCOUNT',  (await AccountService.delete(account._id)).data)
+              
+              // var url = "http://localhost:3019/accounts/"
+              // try {
+                //   const response = await axios.delete(`${url}${account._id}`);
+                //   parseItem(response, 200);
+                //   commit('DELETE_ACCOUNT', account);
+                //   return null;
+                // } catch (error) {
+                  //   console.error(error);
+                  // }
+                },
+                async updateAccount ({ commit, state },payload) {
+                  console.log(`store: updateAccount : ${JSON.stringify(payload, null, 3) }`);
+              const json =  (await AccountService.put(payload)).data
 
-        var url = "http://localhost:3019/accounts/"
-        try {
-          const response = await axios.delete(`${url}${account._id}`);
-          parseItem(response, 200);
-          commit('DELETE_ACCOUNT', account);
-          return null;
-        } catch (error) {
-          console.error(error);
-        }
-      },
-      async updateAccount ({ commit, state },payload) {
-        var url = "http://localhost:3019/accounts/"+payload._id
-        const response = await fetch(url, {
-          body: JSON.stringify(payload), // must match 'Content-Type' header
-          headers: {
-            'authorization': state.token,
-            "Content-type": "application/json; charset=UTF-8"
-          },
-          method: 'PATCH', // *GET, POST, PUT, DELETE, etc.
-        })
-        const json = await response.json();
+            //   var url = "http://localhost:3019/accounts/"+payload._id
+            //   const response = await fetch(url, {
+            //     body: JSON.stringify(payload), // must match 'Content-Type' header
+            //     headers: {
+            //       'authorization': state.token,
+            //       "Content-type": "application/json; charset=UTF-8"
+            //     },
+            //     method: 'PATCH', // *GET, POST, PUT, DELETE, etc.
+            //  })
+            //  const json = await response.json();
+
+
         commit('updateAccount',  json)
        },
        // user
