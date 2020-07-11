@@ -1,13 +1,17 @@
 <template>
   <div id="summary">
+    <div class="income">
+      Income: {{ income }}
+    </div>
+    <div class="details">
     <div class="list-five" v-for="acct in top5" :key="acct._id">
-    <span class="left"> {{ acct.name}}     
-       </span>
-     <span>
-      {{ acct.new_balance | all | currency }} 
-       </span> 
-     <span>
-      {{ acct.minimum | all | currency }}
+        <span class="left"> {{ acct.name}}     
+          </span>
+        <span>
+          {{ acct.new_balance | all | currency }} 
+          </span> 
+        <span>
+          {{ acct.minimum | all | currency }}
        </span> 
     </div>
     <div class="list-five summary-row">
@@ -20,19 +24,21 @@
           {{ summaryTotals.debtToIncome | fixedone }}
           </span> 
     </div>
+  <!-- details -->
+      </div>
   </div>
 </template>
 <script>
 //  module.exports = {
-export default {
-  name: "Summary",
+  export default {
+    name: "Summary",
   // components: {
-  //         'acct-history': httpVueLoader('./account-history.vue'),
+    //         'acct-history': httpVueLoader('./account-history.vue'),
   //       },
  // props: ['account'],
    data: function() {
-        return {
-          today: new Date(),
+     return {
+       today: new Date(),
           title: "Account",
           // details: false,
           // editing:false,
@@ -65,6 +71,9 @@ export default {
           var y = b.statement_date
           return x - y
         })
+      },
+      income: function(){
+        return this.$store.getters.income;
       },
       top5(){
         var top = [];
@@ -202,6 +211,21 @@ export default {
 </script>
 
 <style scoped>
+#summary{
+  display: flex;
+}
+.income{
+  flex: 2;
+  border: 1px solid black;
+  padding: .6em;
+  margin: .4em;
+  background: #ddd;
+  font-size: 3em;
+  color: black;
+}
+.details{
+  flex: 1;
+}
 .list-five{
  border: 1px solid black;
  background: #edf35b;

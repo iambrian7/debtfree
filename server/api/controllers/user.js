@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const config = require('../../configold/config')
+
 
 const User = require("../models/user");
 
@@ -71,14 +73,17 @@ exports.user_login = (req, res, next) => {
    //     if (result) {y
 
           console.log(`user.js: user_login: ${JSON.stringify(result, null, 3)}`);
+          console.log(`checking JWT in user.js:JWT_SECRET ${config.authentication.jwtSecret}`)
+
           const token = jwt.sign(
             {
               email: user[0].email,
               userId: user[0]._id
               //TODO add owner to accounts.find({"owner: user[0].email"})
             },
-            // process.env.JWT_KEY,
-            process.env.VUE_APP_JWT,
+            config.authentication.jwtSecret,
+            // process.env.JWT_SECRET,
+            // process.env.VUE_APP_JWT,
             {
               expiresIn: "1h"
             }
