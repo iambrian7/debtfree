@@ -15,8 +15,8 @@
           <th class="row-2 row-id">Paid</th>
           <th class="row-2 row-id">Purchases</th>
           <th class="row-2 row-id">Min Due</th>
-          <th class="row-2 row-id">Pay Off</th>
-          <th class="row-2 row-id">Pay Off Run</th>
+          <!-- <th class="row-2 row-id">Pay Off</th>
+          <th class="row-2 row-id">Pay Off Run</th> -->
         </tr>
       </thead>
       <tbody>
@@ -31,13 +31,13 @@
             <td>{{a.payment | all | currency}}</td>
             <td>{{a.purchases | all | currency}}</td>
             <td>{{a.minimum | all | currency}}</td> 
-            <td>{{a.minimum - a.interest | all | currency}}</td> 
-            <td>{{a.payoff | all | currency}}</td> 
+            <!-- <td>{{a.minimum - a.interest | all | currency}}</td>  -->
+            <!-- <td>{{a.payoff | all | currency}}</td>  -->
           </tr>
         <tr class="account-totals">
             <td class="bold">Totals</td> 
-            <td></td>
-            <td></td>
+            <td class="row-2 row-id"></td>
+            <td class="row-2 row-id"></td>
             <td>{{totals.previous_balance | all | currency}}</td>
             <td>{{totals.new_balance | all | currency}}</td>
             <td :class="{red : belowZero(totals)}">{{totals.previous_balance - totals.new_balance | all | currency}}</td>
@@ -45,8 +45,8 @@
             <td>{{totals.payment | all | currency}}</td>
             <td>{{totals.purchases | all | currency}}</td>
             <td>{{totals.minimum | all | currency}}</td> 
-            <td>{{totals.minimum - totals.interest | all | currency}}</td> 
-            <td></td> 
+            <!-- <td>{{totals.minimum - totals.interest | all | currency}}</td>  -->
+            <!-- <td></td>  -->
           </tr>
       </tbody>
     </table>
@@ -419,7 +419,7 @@ export default {
 
 .users {
   table-layout: fixed;
-  width: 100%;
+  /* width: 100%; */
   white-space: nowrap;
   margin-top: 30px;
 }
