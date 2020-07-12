@@ -21,22 +21,70 @@ var accountStorage = {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts))
   }
 }
- function setInterestRates(a){
-   a.iRate =parseFloat(((a.interest / a.new_balance) * 12).toFixed(3));
+
+function latest(accountsObj){
+    var accts = []
+    for (var key in accountsObj){
+      var len = accountsObj[key].length
+      accts.push(accountsObj[key][len-1]) // get last account in each 
+    }
+    accts = accts.filter(m => {
+      return (m.debttype == 'store') || (m.debttype == 'card') || (m.debttype == 'credit')
+    })
+    accts = accts.filter(m => {
+      return (m.owner == 'brian' && m.name != "Chase Max") 
+    })
+    // console.log(`latestAccounts: ${JSON.stringify(accts, null, 3)}`)
+    accts.map(setInterestRates )
+    accts.sort((a,b) => {
+      var x = a.iRate//new_balance
+      var y = b.iRate//new_balance
+      if (x > y) {
+        return -1;
+      } else if (y > x) {
+        return 1;
+      } else {
+        return 0;
+      }
+      return x - y
+    })
+
+return accts
+}
+
+
+function setInterestRates(a){
+  a.iRate =parseFloat(((a.interest / a.new_balance) * 12).toFixed(3));
   //  a.iRate =parseFloat(((a.interest / a.previous_balance) * 12).toFixed(3));
   //  console.log(`iRate: ${a.name} ${a.iRate}`)
   return a
-  }
-
-  function setHighCredit(accts){
-
-  }
+}
+  function calcTotals(accounts){
+      var t = {};
+      t.previous_balance = 0;
+      t.new_balance  = 0;;
+      t.minimum  = 0;
+      t.purchases  = 0;
+      t.payment  = 0;
+      t.interest  = 0;
+      // var t = {};
+      accounts.forEach(x => {
+        t.previous_balance += x.previous_balance;
+        t.new_balance += x.new_balance;
+        t.minimum += x.minimum;
+        t.purchases += x.purchases;
+        t.payment += x.payment;
+        t.interest += x.interest;
+      })
+      return t;
+    }
 function getAccountsObject(accts){
   function removeZeros(a){
     return a.new_balance > 300 * 100; // nothing less than $200
   }
    var accountsObj = {}
-   accts.filter(removeZeros).forEach(function(a){
+  //  accts.filter(removeZeros).forEach(function(a){
+   accts.forEach(function(a){
      if (!accountsObj[a.name]){
        accountsObj[a.name] = [a]
       } else {
@@ -59,6 +107,7 @@ export default new Vuex.Store({
     token: localStorage.getItem('token') || '',
     user : {},
     users: [],
+    latest: [],
     income: {
       retire: 2480,
       nss: 1370,
@@ -81,8 +130,56 @@ export default new Vuex.Store({
     mortgage:{minimum: 118300,name:"Mortgage",datedue: 15,payment:118300,debttype: 'card',statement_date: new Date('2019-12-15')}}
   },
   getters: {
+    cc_min_payments: state => {
+      // filteredAccounts: function(){
+        var akount = this.$store.getters.latestAccounts
+        if (!akount) return []
+       var sortKey = "datedue"
+       var ex = ["__v","updated","_id"]
+      var filterKey = '' // this.filterKey && this.filterKey.toLowerCase()
+      var accounts = akount
+      // this map function excludes key from the row object for each account
+      // we don't want those keys edited
+          // get array of months in set
+                  var set = {};
+                  accounts.forEach(x => {
+                    var d = new Date(x.statement_date);
+                    var yrMonth = `date${d.getFullYear()}${d.getMonth()}`;
+                    // console.log(`...month ${yrMonth} ${x.name}`)
+                    if (!set[yrMonth]){
+                      this.months.push(d.getMonth())
+                    }
+                  })
+                  // console.log(`yrmonths = ${this.months}`)
+        accounts = accounts.map(row => {
+          Object.keys(row).forEach(k => ex.indexOf(k) > -1 ? delete row[k] : true )
+          var d = new Date(row.statement_date);
+          row.dmonth = d.getMonth();
+          return row
+        })
+      if (sortKey) {
+        accounts = accounts.slice().sort(function (a, b) {
+          a = a[sortKey]
+          b = b[sortKey]
+          return (a === b ? 0 : a > b ? 1 : -1) * 1
+        })
+      }
+      // calculate totals
+      
+      this.totals = calcTotals(accounts);
+      return accounts
+      // },
+    },
+    debt: state => {
+      return state.debt.house + state.debt.ins + state.debt.property_tax 
+    },
     income: state => {
       return state.income.retire + state.income.nss + state.income.npay + state.income.bss 
+    },
+    latestMin: state => {
+      return state.latest.reduce((a,b) =>{
+        return a + b.minimum
+      },0);
     },
     getAcctObj: state => {
       return state.acctObj;
@@ -157,17 +254,9 @@ export default new Vuex.Store({
           return (m.debttype == 'store') || (m.debttype == 'card') || (m.debttype == 'credit')
         })
         accts = accts.filter(m => {
-          // return (m.owner == 'brian') 
           return (m.owner == 'brian' && m.name != "Chase Max") 
         })
         // here we inject minimum percentage for each account
-        accts.forEach((a, index) => {
-          if (a.previous_balance == 0){
-            a.min_percent = 0
-          } else {
-            a.min_percent = parseFloat(((a.minimum / a.new_balance)*100).toFixed(2))
-          }
-        })
         accts.map(setInterestRates )
         accts.sort((a,b) => {
           var x = a.iRate//new_balance
@@ -199,6 +288,8 @@ export default new Vuex.Store({
       state.acctObj = getAccountsObject(payload);
       console.log(`state.acctObj len=${Object.keys(state.acctObj).length}`)
       state.accounts = payload
+      // get latest set of accounts 
+      state.latest = latest(state.acctObj)
     },
     addAccount (state,payload){
       state.accounts.push(payload)
@@ -247,71 +338,27 @@ export default new Vuex.Store({
       console.log(`store:actions:checkAccounts: accounts len = ${json.length}`)
     },
     async loadAccounts ({ commit }) {
-      // if (!localStorage.getItem(STORAGE_KEY)){
-        // commit('loadAccounts',  (await AccountService.index()).data)
         console.log(`loadAccounts from server  **************************************`)
         const json =  (await AccountService.index()).data
-        // console.log(`store: loadAccounts : ${JSON.stringify(json, null, 3) }`);
-            // const response = await fetch('./accounts');
-            // const json = await response.json();
-            json.forEach(x => x.name = x.name.split('/').join(' '));  // fix name with "/" in name (Discover Card Brian/Nancy)
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(json))
-            commit('loadAccounts',json)            
-          // } else {
-          //   console.log(`loadAccounts from storage  **************************************`)
-          //   var response = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-          //   commit('loadAccounts',response)            
-          // }
+        json.forEach(x => x.name = x.name.split('/').join(' '));  // fix name with "/" in name (Discover Card Brian/Nancy)
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(json))
+        commit('loadAccounts',json)  
         },
-        async addAccount ({ commit },account) {
-          ///  var url = "/accounts"
-          localStorage.removeItem(STORAGE_KEY)
-          console.log(`store: addAccount : ${JSON.stringify(account, null, 3) }`);
-          commit('adddAccount',  (await AccountService.post(account)).data)
-          // const response = await fetch(url, {
-            //   body: JSON.stringify(account), // must match 'Content-Type' header
-            //   headers: {
-              //     "Content-type": "application/json; charset=UTF-8"
-              //   },
-              //   method: 'POST', // *GET, POST, PUT, DELETE, etc.
-              // })
-              // const json = await response.json();
-              commit('addAccount',  account)
-              
-            },
-            async deleteAccount({ commit }, account) {
-              console.log(`store: deleteAccount : ${JSON.stringify(account, null, 3) }`);
-              localStorage.removeItem(STORAGE_KEY)
-              commit('DELETE_ACCOUNT',  (await AccountService.delete(account._id)).data)
-              
-              // var url = "http://localhost:3019/accounts/"
-              // try {
-                //   const response = await axios.delete(`${url}${account._id}`);
-                //   parseItem(response, 200);
-                //   commit('DELETE_ACCOUNT', account);
-                //   return null;
-                // } catch (error) {
-                  //   console.error(error);
-                  // }
-                },
-                async updateAccount ({ commit, state },payload) {
-                  console.log(`store: updateAccount : ${JSON.stringify(payload, null, 3) }`);
-              const json =  (await AccountService.put(payload)).data
-
-            //   var url = "http://localhost:3019/accounts/"+payload._id
-            //   const response = await fetch(url, {
-            //     body: JSON.stringify(payload), // must match 'Content-Type' header
-            //     headers: {
-            //       'authorization': state.token,
-            //       "Content-type": "application/json; charset=UTF-8"
-            //     },
-            //     method: 'PATCH', // *GET, POST, PUT, DELETE, etc.
-            //  })
-            //  const json = await response.json();
-
-
-        commit('updateAccount',  json)
-       },
+    async addAccount ({ commit },account) {
+      localStorage.removeItem(STORAGE_KEY)
+      console.log(`store: addAccount : ${JSON.stringify(account, null, 3) }`);
+      commit('addAccount',  (await AccountService.post(account)).data)
+    },
+    async deleteAccount({ commit }, account) {
+      console.log(`store: deleteAccount : ${JSON.stringify(account, null, 3) }`);
+      localStorage.removeItem(STORAGE_KEY)
+      commit('DELETE_ACCOUNT',  (await AccountService.delete(account._id)).data)
+    },
+    async updateAccount ({ commit, state },payload) {
+      console.log(`store: updateAccount : ${JSON.stringify(payload, null, 3) }`);
+    const json =  (await AccountService.put(payload)).data
+    commit('updateAccount',  json)
+    },
        // user
      async login({commit}, data){
       commit('auth_request')

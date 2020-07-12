@@ -1,7 +1,19 @@
 <template>
   <div id="summary">
     <div class="income">
-      Income: {{ income }}
+      <div class="item">
+        Income: {{ income | currency }}
+      </div>
+      <div class="item">
+      Debt  : {{ debt | currency}}
+      </div>
+      <div class="item">
+      TotalMin : {{ totalMin | all | currency }}
+      </div>
+      <div class="item">
+        Debt/Income: {{ Math.round( (totalMin + (debt*100) )/ income)}}%
+      </div>
+        <!-- Debt/Income: {{ (totalMin + debt ) / income}} -->
     </div>
     <div class="details">
     <div class="list-five" v-for="acct in top5" :key="acct._id">
@@ -74,6 +86,12 @@
       },
       income: function(){
         return this.$store.getters.income;
+      },
+      debt: function(){
+        return this.$store.getters.debt;
+      },
+      totalMin: function(){
+        return this.$store.getters.latestMin;
       },
       top5(){
         var top = [];
@@ -216,6 +234,8 @@
 }
 .income{
   flex: 2;
+  display: flex;
+  flex-direction: column;
   border: 1px solid black;
   padding: .6em;
   margin: .4em;
