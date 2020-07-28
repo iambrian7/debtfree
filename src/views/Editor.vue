@@ -14,15 +14,15 @@
       <thead>
         <tr>
           <!-- <th class="row-2 row-name">Name</th> -->
-          <th class="row-2 row-ID">Due</th>
-          <th class="row-2 row-ID">Date</th>
-          <th class="row-2 row-ID">Bal</th>
-          <th class="row-2 row-ID">New Bal</th>
-          <th class="row-2 row-ID">Diff</th>
-          <th class="row-2 row-ID">Interest</th>
-          <th class="row-2 row-ID">Paid</th>
-          <th class="row-2 row-ID">Purchases</th>
-          <th class="row-2 row-ID">Min Due</th>
+          <th class="column-date">Due</th>
+          <th class="row-ID">Date</th>
+          <th class="row-ID">Bal</th>
+          <th class="row-ID">New Bal</th>
+          <th class="row-ID">Diff</th>
+          <th class="row-ID">Interest</th>
+          <th class="row-ID">Paid</th>
+          <th class="row-ID">Purchases</th>
+          <th class="row-ID">Min Due</th>
         </tr>
       </thead>
       <tbody>
@@ -370,7 +370,10 @@ function splitDate(d){
 }
 /* Column widths are based on these cells */
 .row-ID {
-  width: 5%;
+  width: 15%;
+}
+.column-date{
+  width: 2%;
 }
 .row-name {
   width: 5%;

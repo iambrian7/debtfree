@@ -115,7 +115,7 @@ export default new Vuex.Store({
       npay: 1571  
     },
     debt: {
-      house: 1143,
+      house: 950,
       property_tax: 153,
       ins: 125
     },

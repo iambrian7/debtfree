@@ -152,9 +152,9 @@
         },
         submitAdd: function(){
           console.log(`account-history:add this account....`);
-          if (this.newAccount.new_balance == 0){
-            alert("enter new balance")
-          } else {
+       //   if (this.newAccount.new_balance == 0){
+       //     alert("enter new balance")
+       //   } else {
             var a = this.newAccount;
             delete a._id;
             delete a.iRate;
@@ -180,7 +180,7 @@
                 alert('canceling the update')
                 this.cancelUpdate();
             }
-          }
+         // }
         },
         cancelUpdate: function(){
            this.$router.push({path:`/account`})
